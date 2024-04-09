@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Meeting Roulette</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script type="text/javascript" src="main.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- card related -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:title" content="Meeting Roulette" />
+    <meta property="og:description" content="🎡 Spin your meetings" />
+    <!-- <meta property="og:image" content="https://.../preview_640x320.jpg" /> -->
+    <!-- <meta property="org:url" content="https://..." /> -->
+  </head>
+  <body>
+    <main id="app" style="display: none">
+      <div class="left panel">
+        <h2>Meeting Roulette</h2>
+        <br />
+        <ul>
+          <li>
+            Remaining meeting time: <b>{{ timeText(totalRemainingTime) }}</b>
+          </li>
+          <li>Total meeting time: <b>{{ timeText(totalTime) }}</b></li>
+          <li>
+            <label for="wheighted">Wheighted topics</label>&nbsp;<input
+              id="wheighted"
+              v-model="wheighted"
+              type="checkbox"
+            />
+          </li>
+        </ul>
+        <br />
+        <div class="buttons">
+          <button :disabled="!showSelected" @click="timerFunction">
+            <span v-if="!timerStarted">Start timer</span>
+            <span v-else>Stop timer</span></button
+          >&nbsp;
+          <button
+            :disabled="!showSelected || timerStarted"
+            @click="removeTopic"
+          >
+            Remove topic
+          </button>
+        </div>
+        <h1 :id="rid">
+          <span :style="overtime() ? 'color: #B71C1C' : ''">
+            {{ timerText() }}
+          </span>
+        </h1>
+      </div>
+      <div class="middle panel">
+        <h1>Current topic: {{ showSelected ? selectedData.text : '???' }}</h1>
+        <h2 v-if="(showSelected || initialSpin) && !timerStarted">
+          click to spin
+        </h2>
+        <div class="wheel">
+          <svg
+            viewBox="-1.05 -1.05 2.1 2.1"
+            :style="`transform: rotate(${wheelPosition}deg)`"
+            @click="spin"
+          >
+            <circle
+              r="1"
+              cx="0"
+              cy="0"
+              fill="#263238"
+              stroke="#263238"
+              stroke-width="0.04"
+            />
+            <g v-for="d in svgData" :transform="d.transform">
+              <path :d="d.path" :fill="d.color" />
+              <text
+                :x="d.textPosition"
+                y="0"
+                style="font: bold 1px sans-serif; text-align: center"
+                dominant-baseline="middle"
+                text-anchor="end"
+                fill="white"
+                :transform="d.textTransform"
+              >
+                {{ d.text }}
+              </text>
+            </g>
+            <circle
+              r="10%"
+              cx="0"
+              cy="0"
+              fill="#cfd8dc"
+              stroke="#263238"
+              stroke-width="0.02"
+            />
+          </svg>
+        </div>
+      </div>
+      <div class="right panel">
+        <textarea v-model="rawData"></textarea>
+      </div>
+    </main>
+  </body>
+</html>
