@@ -1,5 +1,3 @@
-/* exported utils */
-
 let app = {
   data() {
     return {
@@ -152,6 +150,7 @@ let app = {
     },
     getData() {
       const re = /:\s?(?:(?:(\d+)\s?h)?(\d+)?(?:\s?m(?:in)?)?)\s?$/i;
+      this.setCookie('rawData', this.rawData);
       return this.rawData
         .split("\n")
         .map((line) => line.trim())
@@ -211,9 +210,31 @@ let app = {
         document.title = "Meeting Roulette";
       }
     },
+    setCookie(cname, cvalue, exdays) {
+      const d = new Date();
+      d.setTime(d.getTime() + (exdays*24*60*60*1000));
+      let expires = "expires="+ d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    },
+    getCookie(cname, defaultValue) {
+      let name = cname + "=";
+      let decodedCookie = decodeURIComponent(document.cookie);
+      let ca = decodedCookie.split(';');
+      for(let i = 0; i <ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+        }
+      }
+      return defaultValue;
+    }
   },
   mounted: function () {
     console.log("app mounted");
+    this.rawData = this.getCookie('rawData', this.rawData);
     this.data = this.getData();
     setTimeout(this.showApp);
     setInterval(() => {
