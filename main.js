@@ -150,7 +150,7 @@ let app = {
     },
     getData() {
       const re = /:\s?(?:(?:(\d+)\s?h)?(\d+)?(?:\s?m(?:in)?)?)\s?$/i;
-      this.setCookie('rawData', this.rawData);
+      this.setCookie('rawData', btoa(this.rawData));
       return this.rawData
         .split("\n")
         .map((line) => line.trim())
@@ -214,7 +214,8 @@ let app = {
       const d = new Date();
       d.setTime(d.getTime() + (exdays*24*60*60*1000));
       let expires = "expires="+ d.toUTCString();
-      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+      console.log(cname + "=" + cvalue + "; path=/; " + expires);
+      document.cookie = cname + "=" + cvalue + "; path=/; " + expires;
     },
     getCookie(cname, defaultValue) {
       let name = cname + "=";
@@ -234,7 +235,7 @@ let app = {
   },
   mounted: function () {
     console.log("app mounted");
-    this.rawData = this.getCookie('rawData', this.rawData);
+    this.rawData = atob(this.getCookie('rawData', btoa(this.rawData)));
     this.data = this.getData();
     setTimeout(this.showApp);
     setInterval(() => {
