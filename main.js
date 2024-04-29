@@ -78,12 +78,12 @@ let app = {
     },
     timerText() {
       const delta = this.timerStarted
-        ? Math.floor(Math.abs(this.timerEnd - new Date()) / 1000)
+        ? Math.floor((this.timerEnd - new Date()) / 1000)
         : this.showSelected
         ? this.selectedData.time * 60
         : 0;
-      return `${String(Math.floor(delta / 60)).padStart(2, "0")}:${String(
-        delta % 60
+      return `${delta < 0 ? '-' : ''}${String(Math.floor(Math.abs(delta) / 60)).padStart(2, "0")}:${String(
+        Math.abs(delta) % 60
       ).padStart(2, "0")}`;
     },
     timeText(minutes) {
