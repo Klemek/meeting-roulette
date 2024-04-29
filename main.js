@@ -45,6 +45,17 @@ let app = {
         .map((item) => item.time)
         .reduce((a, b) => a + b, 0);
     },
+    estimatedEnd() {
+      const delta = this.timerStarted
+        ? ((this.timerEnd - new Date()) / (1000 * 60))
+        : this.showSelected
+        ? this.selectedData.time
+        : 0;
+      const toAdd = (this.totalRemainingTime - (this.showSelected ? this.selectedData.time : 0)  + delta);
+      const end = new Date();
+      end.setMinutes(end.getMinutes() + toAdd);
+      return end.getHours() * 60 + end.getMinutes();
+    },
     svgData() {
       let totalAngle = 0;
       return this.filteredData.map((item, index) => {
