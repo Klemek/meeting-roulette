@@ -16,6 +16,7 @@ let app = {
       initialSpin: true,
       initialColor: Math.random() * 360,
       rid: 0,
+      beepTimer: undefined,
     };
   },
   watch: {
@@ -85,6 +86,27 @@ let app = {
       return `${delta < 0 ? '-' : ''}${String(Math.floor(Math.abs(delta) / 60)).padStart(2, "0")}:${String(
         Math.abs(delta) % 60
       ).padStart(2, "0")}`;
+    },
+    beep(remaining = 3) {
+      if (remaining < 0) {
+        return;
+      }
+      const context = new AudioContext();
+      const oscillator = context.createOscillator();
+      const volume = context.createGain();
+      volume.gain.value = 0.1;
+      oscillator.type = "sine";
+      oscillator.frequency.value = 800;
+      oscillator.connect(context.destination);
+      oscillator.connect(volume);
+      oscillator.start();
+      const self = this;
+      setTimeout(function () {
+          oscillator.stop();
+          setTimeout(function () {
+            self.beep(remaining - 1);
+          }, 1000);
+      }, 150);
     },
     timeText(minutes) {
       if (minutes > 60) {
@@ -164,9 +186,15 @@ let app = {
     },
     timerFunction() {
       this.timerStarted = !this.timerStarted;
+      clearTimeout(this.beepTimer);
       if (this.timerStarted) {
         this.timerEnd = new Date(
           new Date().getTime() + this.selectedData.time * 60 * 1000
+        );
+        this.beepTimer = setTimeout(
+          () => {
+            this.beep();
+          }, this.selectedData.time * 60 * 1000
         );
       } else {
         document.title = "Meeting Roulette";
