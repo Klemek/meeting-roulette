@@ -118,7 +118,7 @@ let app = {
       return 0;
     },
     getData() {
-      const re = /:\s?(?:(?:(\d+)\s?h)?(\d+)?(?:m(?:in)?)?)\s?$/i;
+      const re = /:\s?(?:(?:(\d+)\s?h)?(\d+)?(?:\s?m(?:in)?)?)\s?$/i;
       return this.rawData
         .split("\n")
         .map((line) => line.trim())
