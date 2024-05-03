@@ -23,9 +23,7 @@
           <li>
             Remaining meeting time: <b>{{ timeText(totalRemainingTime) }}</b>
           </li>
-          <li>
-            End estimated at: <b>{{ timeText(estimatedEnd) }}</b>
-          </li>
+          <li>End estimated at: <b>{{ timeText(estimatedEnd) }}</b></li>
           <li>Total meeting time: <b>{{ timeText(totalTime) }}</b></li>
           <li>
             <label for="wheighted">Wheighted topics</label>&nbsp;<input
@@ -78,7 +76,11 @@
               <text
                 :x="d.textPosition"
                 y="0"
-                style="font: bold 1px sans-serif; text-align: center"
+                style="
+                  font: bold 1px sans-serif;
+                  text-align: center;
+                  font-family: 'Courier New', Courier, monospace;
+                "
                 dominant-baseline="middle"
                 text-anchor="end"
                 fill="white"

@@ -45,11 +45,14 @@ let app = {
     },
     estimatedEnd() {
       const delta = this.timerStarted
-        ? ((this.timerEnd - new Date()) / (1000 * 60))
+        ? (this.timerEnd - new Date()) / (1000 * 60)
         : this.showSelected
         ? this.selectedData.time
         : 0;
-      const toAdd = (this.totalRemainingTime - (this.showSelected ? this.selectedData.time : 0)  + delta);
+      const toAdd =
+        this.totalRemainingTime -
+        (this.showSelected ? this.selectedData.time : 0) +
+        delta;
       const end = new Date();
       end.setMinutes(end.getMinutes() + toAdd);
       return end.getHours() * 60 + end.getMinutes();
@@ -60,9 +63,9 @@ let app = {
         const ratio = this.wheighted
           ? item.time / this.totalRemainingTime
           : 1 / this.filteredData.length;
-        const textScale = item.text.length * 1.1;
         const angleRad = 2 * Math.PI * ratio;
         const angleDeg = 360 * ratio;
+        const textScale = this.textScale(item.text, angleRad);
         totalAngle += angleDeg;
         return {
           id: item.id,
@@ -83,6 +86,12 @@ let app = {
     },
   },
   methods: {
+    textScale(text, angleRad) {
+      const r = 1.2;
+      const n = text.length;
+      const k = n + r / (2 * Math.tan(angleRad / 2));
+      return k / r;
+    },
     overtime() {
       return this.timerStarted && this.timerEnd - new Date() <= 0;
     },
@@ -92,9 +101,9 @@ let app = {
         : this.showSelected
         ? this.selectedData.time * 60
         : 0;
-      return `${delta < 0 ? '-' : ''}${String(Math.floor(Math.abs(delta) / 60)).padStart(2, "0")}:${String(
-        Math.abs(delta) % 60
-      ).padStart(2, "0")}`;
+      return `${delta < 0 ? "-" : ""}${String(
+        Math.floor(Math.abs(delta) / 60)
+      ).padStart(2, "0")}:${String(Math.abs(delta) % 60).padStart(2, "0")}`;
     },
     beep(remaining = 3) {
       if (remaining < 0) {
@@ -111,10 +120,10 @@ let app = {
       oscillator.start();
       const self = this;
       setTimeout(function () {
-          oscillator.stop();
-          setTimeout(function () {
-            self.beep(remaining - 1);
-          }, 1000);
+        oscillator.stop();
+        setTimeout(function () {
+          self.beep(remaining - 1);
+        }, 1000);
       }, 150);
     },
     timeText(minutes) {
@@ -150,7 +159,7 @@ let app = {
     },
     getData() {
       const re = /:\s?(?:(?:(\d+)\s?h)?(\d+)?(?:\s?m(?:in)?)?)\s?$/i;
-      this.setCookie('rawData', btoa(this.rawData));
+      this.setCookie("rawData", btoa(this.rawData));
       return this.rawData
         .split("\n")
         .map((line) => line.trim())
@@ -201,29 +210,27 @@ let app = {
         this.timerEnd = new Date(
           new Date().getTime() + this.selectedData.time * 60 * 1000
         );
-        this.beepTimer = setTimeout(
-          () => {
-            this.beep();
-          }, this.selectedData.time * 60 * 1000
-        );
+        this.beepTimer = setTimeout(() => {
+          this.beep();
+        }, this.selectedData.time * 60 * 1000);
       } else {
         document.title = "Meeting Roulette";
       }
     },
     setCookie(cname, cvalue, exdays) {
       const d = new Date();
-      d.setTime(d.getTime() + (exdays*24*60*60*1000));
-      let expires = "expires="+ d.toUTCString();
+      d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
+      let expires = "expires=" + d.toUTCString();
       console.log(cname + "=" + cvalue + "; path=/; " + expires);
       document.cookie = cname + "=" + cvalue + "; path=/; " + expires;
     },
     getCookie(cname, defaultValue) {
       let name = cname + "=";
       let decodedCookie = decodeURIComponent(document.cookie);
-      let ca = decodedCookie.split(';');
-      for(let i = 0; i <ca.length; i++) {
+      let ca = decodedCookie.split(";");
+      for (let i = 0; i < ca.length; i++) {
         let c = ca[i];
-        while (c.charAt(0) == ' ') {
+        while (c.charAt(0) == " ") {
           c = c.substring(1);
         }
         if (c.indexOf(name) == 0) {
@@ -231,11 +238,11 @@ let app = {
         }
       }
       return defaultValue;
-    }
+    },
   },
   mounted: function () {
     console.log("app mounted");
-    this.rawData = atob(this.getCookie('rawData', btoa(this.rawData)));
+    this.rawData = atob(this.getCookie("rawData", btoa(this.rawData)));
     this.data = this.getData();
     setTimeout(this.showApp);
     setInterval(() => {
