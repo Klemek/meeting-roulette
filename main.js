@@ -127,7 +127,7 @@ let app = {
       }, 150);
     },
     timeText(minutes) {
-      if (minutes > 60) {
+      if (minutes >= 60) {
         return `${Math.floor(minutes / 60)}h${String(minutes % 60).padStart(
           2,
           "0"
