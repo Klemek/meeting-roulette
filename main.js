@@ -11,6 +11,9 @@ let app = {
       selected: 0,
       timerEnd: new Date(),
       timerStarted: false,
+      date: new Date(),
+      meetingStart: new Date(),
+      elapsedTime: 0,
       initialSpin: true,
       initialColor: Math.random() * 360,
       rid: 0,
@@ -36,22 +39,20 @@ let app = {
       return this.data.filter((item) => !item.disabled);
     },
     totalTime() {
-      return this.data.map((item) => item.time).reduce((a, b) => a + b, 0);
+      return this.elapsedTime + this.data.map((item) => item.time).reduce((a, b) => a + b, 0);
     },
     totalRemainingTime() {
       return this.filteredData
         .map((item) => item.time)
         .reduce((a, b) => a + b, 0);
     },
+    overtimeTime() {
+      return this.totalTime - this.totalRemainingTime;
+    },
     estimatedEnd() {
-      const delta = this.timerStarted
-        ? ((this.timerEnd - new Date()) / (1000 * 60))
-        : this.showSelected
-        ? this.selectedData.time
-        : 0;
-      const toAdd = (this.totalRemainingTime - (this.showSelected ? this.selectedData.time : 0)  + delta);
-      const end = new Date();
-      end.setMinutes(end.getMinutes() + toAdd);
+      const end = new Date(this.meetingStart.getTime());
+      const timerDelta = (this.timerEnd - this.date) / (1000 * 60);
+      end.setMinutes(end.getMinutes() + this.totalTime - (this.timerStarted ? timerDelta : 0));
       return end.getHours() * 60 + end.getMinutes();
     },
     svgData() {
@@ -90,8 +91,8 @@ let app = {
       const delta = this.timerStarted
         ? Math.floor((this.timerEnd - new Date()) / 1000)
         : this.showSelected
-        ? this.selectedData.time * 60
-        : 0;
+          ? this.selectedData.time * 60
+          : 0;
       return `${delta < 0 ? '-' : ''}${String(Math.floor(Math.abs(delta) / 60)).padStart(2, "0")}:${String(
         Math.abs(delta) % 60
       ).padStart(2, "0")}`;
@@ -111,25 +112,28 @@ let app = {
       oscillator.start();
       const self = this;
       setTimeout(function () {
-          oscillator.stop();
-          setTimeout(function () {
-            self.beep(remaining - 1);
-          }, 1000);
+        oscillator.stop();
+        setTimeout(function () {
+          self.beep(remaining - 1);
+        }, 1000);
       }, 150);
     },
     timeText(minutes) {
       if (minutes > 60) {
-        return `${Math.floor(minutes / 60)}h${String(minutes % 60).padStart(
+        return `${Math.floor(minutes / 60).toFixed(0)}h${(minutes % 60).toFixed(0).padStart(
           2,
           "0"
         )}`;
       } else {
-        return `${String(minutes % 60).padStart(2, "0")}min`;
+        return `${(minutes % 60).toFixed(0).padStart(2, "0")}min`;
       }
     },
     spin() {
       if (this.timerStarted) return;
       this.showSelected = false;
+      if (this.initialSpin) {
+        this.meetingStart = new Date();
+      }
       this.initialSpin = false;
       this.wheelPosition += 360 * 10 + Math.random() * 360;
       clearTimeout(this.timeoutId);
@@ -212,8 +216,8 @@ let app = {
     },
     setCookie(cname, cvalue, exdays) {
       const d = new Date();
-      d.setTime(d.getTime() + (exdays*24*60*60*1000));
-      let expires = "expires="+ d.toUTCString();
+      d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+      let expires = "expires=" + d.toUTCString();
       console.log(cname + "=" + cvalue + "; path=/; " + expires);
       document.cookie = cname + "=" + cvalue + "; path=/; " + expires;
     },
@@ -221,7 +225,7 @@ let app = {
       let name = cname + "=";
       let decodedCookie = decodeURIComponent(document.cookie);
       let ca = decodedCookie.split(';');
-      for(let i = 0; i <ca.length; i++) {
+      for (let i = 0; i < ca.length; i++) {
         let c = ca[i];
         while (c.charAt(0) == ' ') {
           c = c.substring(1);
@@ -243,6 +247,8 @@ let app = {
       if (this.timerStarted) {
         document.title = this.timerText();
       }
+      this.elapsedTime = (new Date() - this.meetingStart) / (1000 * 60);
+      this.date = new Date();
     }, 200);
   },
 };
