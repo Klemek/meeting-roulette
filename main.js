@@ -5,7 +5,7 @@ let app = {
         "Topic 1: 60min\nTopic 2: 20min\nTopic 3: 50min\nTopic 4: 20min\nTopic 5:10min\nTopic 6: 10min\nTopic 7: 10min",
       data: [],
       wheelPosition: 0,
-      wheighted: false,
+      weighted: false,
       timeoutId: 0,
       showSelected: false,
       selected: 0,
@@ -58,12 +58,12 @@ let app = {
     svgData() {
       let totalAngle = 0;
       return this.filteredData.map((item, index) => {
-        const ratio = this.wheighted
+        const ratio = this.weighted
           ? item.time / this.totalRemainingTime
           : 1 / this.filteredData.length;
-        const textScale = item.text.length * 1.1;
         const angleRad = 2 * Math.PI * ratio;
         const angleDeg = 360 * ratio;
+        const textScale = this.textScale(item.text, angleRad);
         totalAngle += angleDeg;
         return {
           id: item.id,
@@ -84,18 +84,24 @@ let app = {
     },
   },
   methods: {
+    textScale(text, angleRad) {
+      const r = 1.2;
+      const n = text.length;
+      const k = n + r / (2 * Math.tan(angleRad / 2));
+      return k / r;
+    },
     overtime() {
       return this.timerStarted && this.timerEnd - new Date() <= 0;
     },
     timerText() {
       const delta = this.timerStarted
         ? Math.floor((this.timerEnd - new Date()) / 1000)
-        : this.showSelected
+        : (this.showSelected
           ? this.selectedData.time * 60
-          : 0;
-      return `${delta < 0 ? '-' : ''}${String(Math.floor(Math.abs(delta) / 60)).padStart(2, "0")}:${String(
-        Math.abs(delta) % 60
-      ).padStart(2, "0")}`;
+          : 0);
+      return `${delta < 0 ? "-" : ""}${String(
+        Math.floor(Math.abs(delta) / 60)
+      ).padStart(2, "0")}:${String(Math.abs(delta) % 60).padStart(2, "0")}`;
     },
     beep(remaining = 3) {
       if (remaining < 0) {
@@ -119,7 +125,7 @@ let app = {
       }, 150);
     },
     timeText(minutes) {
-      if (minutes > 60) {
+      if (minutes >= 60) {
         return `${Math.floor(minutes / 60).toFixed(0)}h${(minutes % 60).toFixed(0).padStart(
           2,
           "0"
@@ -154,7 +160,7 @@ let app = {
     },
     getData() {
       const re = /:\s?(?:(?:(\d+)\s?h)?(\d+)?(?:\s?m(?:in)?)?)\s?$/i;
-      this.setCookie('rawData', btoa(this.rawData));
+      this.setCookie("rawData", btoa(this.rawData));
       return this.rawData
         .split("\n")
         .map((line) => line.trim())
@@ -205,11 +211,9 @@ let app = {
         this.timerEnd = new Date(
           new Date().getTime() + this.selectedData.time * 60 * 1000
         );
-        this.beepTimer = setTimeout(
-          () => {
-            this.beep();
-          }, this.selectedData.time * 60 * 1000
-        );
+        this.beepTimer = setTimeout(() => {
+          this.beep();
+        }, this.selectedData.time * 60 * 1000);
       } else {
         document.title = "Meeting Roulette";
       }
@@ -227,7 +231,7 @@ let app = {
       let ca = decodedCookie.split(';');
       for (let i = 0; i < ca.length; i++) {
         let c = ca[i];
-        while (c.charAt(0) == ' ') {
+        while (c.charAt(0) == " ") {
           c = c.substring(1);
         }
         if (c.indexOf(name) == 0) {
@@ -235,11 +239,11 @@ let app = {
         }
       }
       return defaultValue;
-    }
+    },
   },
   mounted: function () {
     console.log("app mounted");
-    this.rawData = atob(this.getCookie('rawData', btoa(this.rawData)));
+    this.rawData = atob(this.getCookie("rawData", btoa(this.rawData)));
     this.data = this.getData();
     setTimeout(this.showApp);
     setInterval(() => {
