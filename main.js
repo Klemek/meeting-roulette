@@ -18,6 +18,7 @@ let app = {
       initialColor: Math.random() * 360,
       rid: 0,
       beepTimer: undefined,
+      sound: undefined,
     };
   },
   watch: {
@@ -103,26 +104,8 @@ let app = {
         Math.floor(Math.abs(delta) / 60)
       ).padStart(2, "0")}:${String(Math.abs(delta) % 60).padStart(2, "0")}`;
     },
-    beep(remaining = 3) {
-      if (remaining < 0) {
-        return;
-      }
-      const context = new AudioContext();
-      const oscillator = context.createOscillator();
-      const volume = context.createGain();
-      volume.gain.value = 0.1;
-      oscillator.type = "sine";
-      oscillator.frequency.value = 800;
-      oscillator.connect(context.destination);
-      oscillator.connect(volume);
-      oscillator.start();
-      const self = this;
-      setTimeout(function () {
-        oscillator.stop();
-        setTimeout(function () {
-          self.beep(remaining - 1);
-        }, 1000);
-      }, 150);
+    beep() {
+      this.sound.play();
     },
     timeText(minutes) {
       if (minutes >= 60) {
@@ -243,6 +226,7 @@ let app = {
   },
   mounted: function () {
     console.log("app mounted");
+    this.sound = new Audio("./sound.wav");
     this.rawData = atob(this.getCookie("rawData", btoa(this.rawData)));
     this.data = this.getData();
     setTimeout(this.showApp);
