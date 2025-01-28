@@ -185,7 +185,6 @@ let app = {
         })
         .join("\n");
       this.showSelected = false;
-      this.initialSpin = true;
     },
     timerFunction() {
       this.timerStarted = !this.timerStarted;
