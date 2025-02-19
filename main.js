@@ -72,7 +72,7 @@ let app = {
           ? item.time / this.totalRemainingTime
           : 1 / this.filteredData.length;
         const angleRad = 2 * Math.PI * ratio;
-        const angleDeg = 360 * ratio;
+        const angleDeg = (360 * ratio) % 360;
         const textScale = this.textScale(item.text, angleRad);
         totalAngle += angleDeg;
         return {
@@ -97,7 +97,7 @@ let app = {
     textScale(text, angleRad) {
       const r = 1.2;
       const n = text.length;
-      const k = n + r / (2 * Math.tan(angleRad / 2));
+      const k = n + r / (2 * Math.tan(Math.min(Math.PI, angleRad) / 2));
       return k / r;
     },
     overtime() {
@@ -117,7 +117,7 @@ let app = {
       this.sound.play();
     },
     timeText(minutes, padHours = 0) {
-      if (minutes >= 60 || pad > 0) {
+      if (minutes >= 60 || padHours > 0) {
         return `${Math.floor(minutes / 60).toFixed(0).padStart(padHours, "0")}h${(minutes % 60).toFixed(0).padStart(2, "0")}`;
       } else {
         return `${(minutes % 60).toFixed(0).padStart(2, "0")}min`;
@@ -150,7 +150,7 @@ let app = {
     getData() {
       const re = /:\s?(?:(?:(\d+)\s?h)?(\d+)?(?:\s?m(?:in)?)?)\s?$/i;
       this.setCookie("rawData", btoa(this.rawData));
-      return this.rawData
+      const data = this.rawData
         .split("\n")
         .map((line) => line.trim())
         .filter((line) => line.length)
@@ -172,6 +172,15 @@ let app = {
             };
           }
         });
+      if (data.length === 0) {
+        return [{
+          id: 0,
+          text: '?',
+          time: 1,
+          disabled: false,
+        }];
+      }
+      return data;
     },
     showApp() {
       document.getElementById("app").setAttribute("style", "");
