@@ -50,6 +50,10 @@ let app = {
     overtimeTime() {
       return this.totalTime - this.totalRemainingTime;
     },
+    startedAt() {
+      const start = new Date(this.meetingStart.getTime());
+      return start.getHours() * 60 + start.getMinutes();
+    },
     estimatedEnd() {
       const end = new Date(this.meetingStart.getTime());
       const timerDelta = (this.timerEnd - this.date) / (1000 * 60);
@@ -107,9 +111,9 @@ let app = {
     beep() {
       this.sound.play();
     },
-    timeText(minutes) {
-      if (minutes >= 60) {
-        return `${Math.floor(minutes / 60).toFixed(0)}h${(minutes % 60).toFixed(0).padStart(
+    timeText(minutes, padHours = 0) {
+      if (minutes >= 60 || pad > 0) {
+        return `${Math.floor(minutes / 60).toFixed(0).padStart(padHours, "0")}h${(minutes % 60).toFixed(0).padStart(
           2,
           "0"
         )}`;

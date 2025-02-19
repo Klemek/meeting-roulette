@@ -21,16 +21,19 @@
         <br />
         <ul>
           <li>
-            Meeting duration so far:&nbsp;<b :id="rid + 1">{{ timeText(elapsedTime) }}</b>
+            Meeting started at:&nbsp;<b :id="rid + 1">{{ timeText(startedAt, 2) }}</b>
           </li>
           <li>
-            Remaining meeting time:&nbsp;<b :id="rid + 2">{{ timeText(totalRemainingTime) }}</b>
+            Meeting duration so far:&nbsp;<b :id="rid + 2">{{ timeText(elapsedTime) }}</b>
           </li>
           <li>
-            End estimated at:&nbsp;<b :id="rid + 3">{{ timeText(estimatedEnd) }}</b>
+            Remaining meeting time:&nbsp;<b :id="rid + 3">{{ timeText(totalRemainingTime) }}</b>
           </li>
           <li>
-            Total meeting time:&nbsp;<b :id="rid + 4">{{ timeText(totalTime) }}</b>
+            End estimated at:&nbsp;<b :id="rid + 4">{{ timeText(estimatedEnd, 2) }}</b>
+          </li>
+          <li>
+            Total meeting time:&nbsp;<b :id="rid + 5">{{ timeText(totalTime) }}</b>
           </li>
           <li>
             <label for="weighted">Weighted topics:</label>&nbsp;<input
