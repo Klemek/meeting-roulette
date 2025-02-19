@@ -40,7 +40,12 @@ let app = {
       return this.data.filter((item) => !item.disabled);
     },
     totalTime() {
-      return this.elapsedTime + this.data.map((item) => item.time).reduce((a, b) => a + b, 0);
+      return this.elapsedTime + this.totalRemainingTime;
+    },
+    totalExpectedTime() {
+      return this.data
+        .map((item) => item.time)
+        .reduce((a, b) => a + b, 0);
     },
     totalRemainingTime() {
       return this.filteredData
@@ -48,7 +53,7 @@ let app = {
         .reduce((a, b) => a + b, 0);
     },
     overtimeTime() {
-      return this.totalTime - this.totalRemainingTime;
+      return this.totalTime - this.totalExpectedTime;
     },
     startedAt() {
       const start = new Date(this.meetingStart.getTime());
@@ -113,10 +118,7 @@ let app = {
     },
     timeText(minutes, padHours = 0) {
       if (minutes >= 60 || pad > 0) {
-        return `${Math.floor(minutes / 60).toFixed(0).padStart(padHours, "0")}h${(minutes % 60).toFixed(0).padStart(
-          2,
-          "0"
-        )}`;
+        return `${Math.floor(minutes / 60).toFixed(0).padStart(padHours, "0")}h${(minutes % 60).toFixed(0).padStart(2, "0")}`;
       } else {
         return `${(minutes % 60).toFixed(0).padStart(2, "0")}min`;
       }
