@@ -188,19 +188,32 @@
         </div>
       </div>
       <div class="flex flex-col grow h-full gap-6">
-        <div
-          class="bg-base-200 rounded-box p-3 text-center font-black text-3xl"
-        >
-          <span v-if="noData">No more topics</span>
-          <span v-else
-            >Current topic: {{ showSelected ? selectedData.text : '???' }}</span
-          >
+        <div class="bg-base-200 rounded-box p-3 text-center">
+          <div class="font-black text-3xl">
+            <span v-if="noData">No more topics</span>
+            <span v-else-if="timerStarted || showSelected">
+              Current topic:
+              <span class="underline">{{selectedData.text}}</span>
+            </span>
+            <span v-else-if="initialSpin">No current topic</span>
+            <span v-else>Spinning...</span>
+          </div>
+          <div class="font-light">
+            <span v-if="noData">End of meeting?</span>
+            <span v-else-if="timerStarted">Discuss the current topic</span>
+            <span v-else-if="initialSpin" class="animate-pulse">
+              Enter your <b>topics</b> then click the wheel to <b>spin</b> !
+            </span>
+            <span v-else-if="showSelected" class="animate-pulse">
+              Start <b>timer</b> or click the wheel to <b>spin</b>
+            </span>
+            <span v-else>Wheeeeee</span>
+          </div>
         </div>
-        <div class="grow rounded-box p-3 overflow-hidden justify-center">
-          <div class="wheel relative h-full aspect-square m-auto">
+        <div class="grow rounded-box overflow-hidden justify-center">
+          <div class="wheel relative max-h-full aspect-square m-auto">
             <svg
               viewBox="-1.05 -1.05 2.1 2.1"
-              class="h-full"
               :class="timerStarted || noData ? 'cursor-not-allowed' : 'cursor-pointer'"
               :style="`transform: rotate(${wheelPosition}deg)`"
               @click="spin"
@@ -239,17 +252,6 @@
               />
             </svg>
           </div>
-        </div>
-        <div class="bg-base-200 rounded-box p-3 text-center">
-          <div v-if="noData">End of meeting?</div>
-          <div v-else-if="timerStarted">Discuss the current topic</div>
-          <div v-else-if="initialSpin" class="animate-pulse">
-            Enter your <b>topics</b> then click the wheel to <b>spin</b> !
-          </div>
-          <div v-else-if="showSelected" class="animate-pulse">
-            Start <b>timer</b> or click the wheel to <b>spin</b>
-          </div>
-          <div v-else>&nbsp;</div>
         </div>
       </div>
       <div class="flex flex-col min-w-64 h-full gap-6">
