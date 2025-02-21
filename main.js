@@ -54,7 +54,7 @@ let app = {
       beepTimer: undefined,
       sound: undefined,
       themes: DAISYUI_THEMES,
-      currentTheme: "light",
+      currentTheme: "cmyk",
       spinning: false,
     };
   },
@@ -320,7 +320,7 @@ let app = {
     console.log("app mounted");
     this.sound = new Audio("./sound.wav");
     this.rawData = atob(this.getCookie("rawData", btoa(this.rawData)));
-    this.currentTheme = this.getCookie("theme", "light");
+    this.currentTheme = this.getCookie("theme", this.currentTheme);
     this.data = this.getData();
     setTimeout(this.showApp);
     setInterval(() => {
