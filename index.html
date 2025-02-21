@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <title>Meeting Roulette</title>
-    <link rel="stylesheet" href="style.css" />
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script type="text/javascript" src="main.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,6 +18,7 @@
       type="text/css"
     />
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
     <!-- card related -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta property="og:title" content="Meeting Roulette" />
@@ -41,7 +41,7 @@
         </div>
         <div
           class="p-3 rounded-box text-center"
-          :class="overtime() ? 'text-error bg-error-content' : 'bg-base-200'"
+          :class="overtime() ? 'text-error-content bg-error' : 'bg-base-200'"
         >
           <span class="countdown font-mono text-5xl">
             {{ timerParts(0) }}
@@ -263,7 +263,7 @@
       <div class="flex flex-col min-w-64 h-full gap-6">
         <textarea
           v-model="rawData"
-          class="grow w-full bg-base-200 textarea rounded-box resize-none"
+          class="grow w-full bg-base-200 min-h-64 textarea rounded-box resize-none"
           placeholder="Meeting point 1: 5min"
         ></textarea>
         <div class="p-3 bg-base-200 rounded-box">

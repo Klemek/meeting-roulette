@@ -174,14 +174,16 @@ let app = {
       this.sound.play();
     },
     timeText(minutes, padHours = 0) {
+      const prefix = minutes >= 0 ? '' : '-';
+      minutes = Math.abs(minutes);
       if (minutes >= 60 || padHours > 0) {
-        return `${Math.floor(minutes / 60)
+        return `${prefix}${Math.floor(minutes / 60)
           .toFixed(0)
           .padStart(padHours, "0")}h${(minutes % 60)
             .toFixed(0)
             .padStart(2, "0")}`;
       } else {
-        return `${(minutes % 60).toFixed(0).padStart(2, "0")}min`;
+        return `${prefix}${(minutes % 60).toFixed(0).padStart(2, "0")}min`;
       }
     },
     spin() {
@@ -207,8 +209,8 @@ let app = {
       }, 5000);
     },
     getSelected() {
-      if (this.svgData.length <= 1) {
-        return 0;
+      if (this.svgData.length === 1) {
+        return this.svgData[0].id;
       }
       const angle = 360 - (this.wheelPosition % 360);
       for (let index = 0; index < this.svgData.length; index++) {
