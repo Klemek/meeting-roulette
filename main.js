@@ -195,6 +195,12 @@ let app = {
       this.selected = this.getSelected();
       this.timeoutId = setTimeout(() => {
         this.showSelected = true;
+        confetti({
+          particleCount: 400,
+          startVelocity: 100,
+          spread: 100,
+          origin: { y: 0.9 },
+        });
       }, 5000);
     },
     getSelected() {
