@@ -32,7 +32,7 @@
       style="display: none"
       class="flex flex-col lg:flex-row h-screen w-full gap-6 p-6 max-h-screen"
     >
-      <div class="flex flex-col h-full gap-6 min-w-64">
+      <div class="flex flex-col h-full gap-6 lg:min-w-60 xl:min-w-100">
         <div class="p-3 bg-base-200 rounded-box">
           <div class="font-title font-black leading-none text-2xl">
             Meeting Roulette
@@ -124,7 +124,10 @@
           </button>
         </div>
         <div
-          class="hidden lg:block p-3 bg-base-200 rounded-box stats stats-vertical"
+          class="hidden lg:block p-3 bg-base-200 rounded-box"
+        >
+        <div
+          class="stats stats-vertical w-full"
         >
           <div class="stat">
             <div class="stat-title">Meeting duration so far</div>
@@ -153,6 +156,7 @@
               Overtime: <b>{{ timeText(overtimeTime) }}</b>
             </div>
           </div>
+        </div>
         </div>
         <div class="hidden lg:block grow"></div>
         <div class="hidden lg:block p-3 bg-base-200 rounded-box">
@@ -260,7 +264,7 @@
           </div>
         </div>
       </div>
-      <div class="flex flex-col min-w-64 h-full gap-6">
+      <div class="flex flex-col lg:min-w-60 xl:min-w-100 h-full gap-6">
         <textarea
           v-model="rawData"
           class="grow w-full bg-base-200 min-h-64 textarea rounded-box resize-none"
