@@ -198,8 +198,8 @@
               Current topic:
               <span class="underline">{{selectedData.text}}</span>
             </span>
-            <span v-else-if="initialSpin">No current topic</span>
-            <span v-else>Spinning...</span>
+            <span v-else-if="spinning">Spinning...</span>
+            <span v-else>No current topic</span>
           </div>
           <div class="font-light">
             <span v-if="noData">End of meeting?</span>
@@ -210,7 +210,10 @@
             <span v-else-if="showSelected" class="animate-pulse">
               Start <b>timer</b> or click the wheel to <b>spin</b>
             </span>
-            <span v-else>Wheeeeee</span>
+            <span v-else-if="spinning">Wheeeeee</span>
+            <span v-else class="animate-pulse">
+              Click the wheel to <b>spin</b> !
+            </span>
           </div>
         </div>
         <div class="grow rounded-box overflow-hidden justify-center">

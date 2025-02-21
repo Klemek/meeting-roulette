@@ -55,6 +55,7 @@ let app = {
       sound: undefined,
       themes: DAISYUI_THEMES,
       currentTheme: "cmyk",
+      spinning: false,
     };
   },
   watch: {
@@ -153,8 +154,8 @@ let app = {
       const delta = this.timerStarted
         ? Math.floor((this.timerEnd - new Date()) / 1000)
         : this.showSelected
-        ? this.selectedData.time * 60
-        : 0;
+          ? this.selectedData.time * 60
+          : 0;
       if (i == 0) {
         return delta < 0 ? "-" : "";
       }
@@ -177,8 +178,8 @@ let app = {
         return `${Math.floor(minutes / 60)
           .toFixed(0)
           .padStart(padHours, "0")}h${(minutes % 60)
-          .toFixed(0)
-          .padStart(2, "0")}`;
+            .toFixed(0)
+            .padStart(2, "0")}`;
       } else {
         return `${(minutes % 60).toFixed(0).padStart(2, "0")}min`;
       }
@@ -190,11 +191,13 @@ let app = {
         this.meetingStart = new Date();
       }
       this.initialSpin = false;
+      this.spinning = true;
       this.wheelPosition += 360 * 10 + Math.random() * 360;
       clearTimeout(this.timeoutId);
       this.selected = this.getSelected();
       this.timeoutId = setTimeout(() => {
         this.showSelected = true;
+        this.spinning = false;
         confetti({
           particleCount: 400,
           startVelocity: 100,
