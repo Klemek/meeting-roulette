@@ -54,7 +54,7 @@ let app = {
       beepTimer: undefined,
       sound: undefined,
       themes: DAISYUI_THEMES,
-      currentTheme: "light",
+      currentTheme: "cmyk",
     };
   },
   watch: {
