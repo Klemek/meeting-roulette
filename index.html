@@ -30,7 +30,7 @@
     <main
       id="app"
       style="display: none"
-      class="flex flex-row h-screen w-full gap-6 p-6 max-h-screen"
+      class="flex flex-col lg:flex-row h-screen w-full gap-6 p-6 max-h-screen"
     >
       <div class="flex flex-col h-full gap-6 min-w-64">
         <div class="p-3 bg-base-200 rounded-box">
@@ -123,7 +123,9 @@
             </svg>
           </button>
         </div>
-        <div class="p-3 bg-base-200 rounded-box stats stats-vertical">
+        <div
+          class="hidden lg:block p-3 bg-base-200 rounded-box stats stats-vertical"
+        >
           <div class="stat">
             <div class="stat-title">Meeting duration so far</div>
             <div class="stat-value" :id="rid + 1">
@@ -152,8 +154,8 @@
             </div>
           </div>
         </div>
-        <div class="grow"></div>
-        <div class="p-3 bg-base-200 rounded-box">
+        <div class="hidden lg:block grow"></div>
+        <div class="hidden lg:block p-3 bg-base-200 rounded-box">
           <div class="dropdown dropdown-top w-full">
             <div tabindex="0" role="button" class="btn m-1 w-full flex">
               <div class="grow text-left">Theme</div>
@@ -258,7 +260,7 @@
       <div class="flex flex-col min-w-64 h-full gap-6">
         <textarea
           v-model="rawData"
-          class="grow bg-base-200 textarea rounded-box resize-none"
+          class="grow w-full bg-base-200 textarea rounded-box resize-none"
           placeholder="Meeting point 1: 5min"
         ></textarea>
         <div class="p-3 bg-base-200 rounded-box">
