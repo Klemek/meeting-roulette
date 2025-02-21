@@ -191,14 +191,17 @@
         <div
           class="bg-base-200 rounded-box p-3 text-center font-black text-3xl"
         >
-          Current topic: {{ showSelected ? selectedData.text : '???' }}
+          <span v-if="noData">No more topics</span>
+          <span v-else
+            >Current topic: {{ showSelected ? selectedData.text : '???' }}</span
+          >
         </div>
         <div class="grow rounded-box p-3 overflow-hidden justify-center">
           <div class="wheel relative h-full aspect-square m-auto">
             <svg
               viewBox="-1.05 -1.05 2.1 2.1"
               class="h-full"
-              :class="timerStarted ? 'cursor-not-allowed' : 'cursor-pointer'"
+              :class="timerStarted || noData ? 'cursor-not-allowed' : 'cursor-pointer'"
               :style="`transform: rotate(${wheelPosition}deg)`"
               @click="spin"
             >
@@ -238,7 +241,8 @@
           </div>
         </div>
         <div class="bg-base-200 rounded-box p-3 text-center">
-          <div v-if="timerStarted">Discuss the current topic</div>
+          <div v-if="noData">End of meeting?</div>
+          <div v-else-if="timerStarted">Discuss the current topic</div>
           <div v-else-if="initialSpin" class="animate-pulse">
             Enter your <b>topics</b> then click the wheel to <b>spin</b> !
           </div>

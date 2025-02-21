@@ -72,6 +72,9 @@ let app = {
         }
       );
     },
+    noData() {
+      return this.filteredData.length === 0;
+    },
     filteredData() {
       return this.data.filter((item) => !item.disabled);
     },
@@ -181,7 +184,7 @@ let app = {
       }
     },
     spin() {
-      if (this.timerStarted) return;
+      if (this.timerStarted || this.noData) return;
       this.showSelected = false;
       if (this.initialSpin) {
         this.meetingStart = new Date();
@@ -195,8 +198,11 @@ let app = {
       }, 5000);
     },
     getSelected() {
+      if (this.svgData.length <= 1) {
+        return 0;
+      }
       const angle = 360 - (this.wheelPosition % 360);
-      for (let index = 0; index < this.data.length; index++) {
+      for (let index = 0; index < this.svgData.length; index++) {
         const element = this.svgData[index];
         if (angle >= element.from && angle < element.to) {
           return element.id;
