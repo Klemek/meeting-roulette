@@ -1,3 +1,37 @@
+const DAISYUI_THEMES = [
+  "light",
+  "dark",
+  "cupcake",
+  "bumblebee",
+  "emerald",
+  "corporate",
+  "synthwave",
+  "retro",
+  "cyberpunk",
+  "valentine",
+  "halloween",
+  "garden",
+  "forest",
+  "aqua",
+  "pastel",
+  "fantasy",
+  "luxury",
+  "dracula",
+  "cmyk",
+  "autumn",
+  "business",
+  "acid",
+  "lemonade",
+  "night",
+  "coffee",
+  "winter",
+  "dim",
+  "nord",
+  "sunset",
+  "caramellatte",
+  "abyss",
+];
+
 let app = {
   data() {
     return {
@@ -15,10 +49,12 @@ let app = {
       meetingStart: new Date(),
       elapsedTime: 0,
       initialSpin: true,
-      initialColor: Math.random() * 360,
+      initialColor: Math.floor(Math.random() * 4),
       rid: 0,
       beepTimer: undefined,
       sound: undefined,
+      themes: DAISYUI_THEMES,
+      currentTheme: "light",
     };
   },
   watch: {
@@ -43,9 +79,7 @@ let app = {
       return this.elapsedTime + this.totalRemainingTime;
     },
     totalExpectedTime() {
-      return this.data
-        .map((item) => item.time)
-        .reduce((a, b) => a + b, 0);
+      return this.data.map((item) => item.time).reduce((a, b) => a + b, 0);
     },
     totalRemainingTime() {
       return this.filteredData
@@ -62,7 +96,9 @@ let app = {
     estimatedEnd() {
       const end = new Date(this.meetingStart.getTime());
       const timerDelta = (this.timerEnd - this.date) / (1000 * 60);
-      end.setMinutes(end.getMinutes() + this.totalTime - (this.timerStarted ? timerDelta : 0));
+      end.setMinutes(
+        end.getMinutes() + this.totalTime - (this.timerStarted ? timerDelta : 0)
+      );
       return end.getHours() * 60 + end.getMinutes();
     },
     svgData() {
@@ -75,6 +111,12 @@ let app = {
         const angleDeg = (360 * ratio) % 360;
         const textScale = this.textScale(item.text, angleRad);
         totalAngle += angleDeg;
+        const colorIndex =
+          ((index == this.filteredData.length - 1 && index % 4 == 0 ? 1 : 0) +
+            index +
+            this.initialColor) %
+          4;
+        const color = ["primary", "secondary", "accent", "neutral"][colorIndex];
         return {
           id: item.id,
           text: item.text,
@@ -86,7 +128,8 @@ let app = {
             angleRad / 2
           )} ${Math.sin(angleRad / 2)} z`,
           transform: `rotate(${totalAngle - angleDeg / 2}, 0, 0)`,
-          color: `hsl(${this.initialColor + 100 * index} 80% 50%)`,
+          textStyle: `fill: var(--color-${color}-content)`,
+          backgroundStyle: `fill: var(--color-${color})`,
           from: totalAngle - angleDeg,
           to: totalAngle,
         };
@@ -103,22 +146,36 @@ let app = {
     overtime() {
       return this.timerStarted && this.timerEnd - new Date() <= 0;
     },
-    timerText() {
+    timerParts(i) {
       const delta = this.timerStarted
         ? Math.floor((this.timerEnd - new Date()) / 1000)
-        : (this.showSelected
-          ? this.selectedData.time * 60
-          : 0);
-      return `${delta < 0 ? "-" : ""}${String(
-        Math.floor(Math.abs(delta) / 60)
-      ).padStart(2, "0")}:${String(Math.abs(delta) % 60).padStart(2, "0")}`;
+        : this.showSelected
+        ? this.selectedData.time * 60
+        : 0;
+      if (i == 0) {
+        return delta < 0 ? "-" : "";
+      }
+      const hours = Math.floor(Math.abs(delta) / 3600);
+      if (i == 1) {
+        return String(hours).padStart(2, "0");
+      }
+      const minutes = Math.floor(Math.abs(delta) / 60 - hours * 60);
+      if (i == 2) {
+        return String(minutes).padStart(2, "0");
+      }
+      const seconds = Math.abs(delta) % 60;
+      return String(seconds).padStart(2, "0");
     },
     beep() {
       this.sound.play();
     },
     timeText(minutes, padHours = 0) {
       if (minutes >= 60 || padHours > 0) {
-        return `${Math.floor(minutes / 60).toFixed(0).padStart(padHours, "0")}h${(minutes % 60).toFixed(0).padStart(2, "0")}`;
+        return `${Math.floor(minutes / 60)
+          .toFixed(0)
+          .padStart(padHours, "0")}h${(minutes % 60)
+          .toFixed(0)
+          .padStart(2, "0")}`;
       } else {
         return `${(minutes % 60).toFixed(0).padStart(2, "0")}min`;
       }
@@ -173,12 +230,14 @@ let app = {
           }
         });
       if (data.length === 0) {
-        return [{
-          id: 0,
-          text: '?',
-          time: 1,
-          disabled: false,
-        }];
+        return [
+          {
+            id: 0,
+            text: "?",
+            time: 1,
+            disabled: false,
+          },
+        ];
       }
       return data;
     },
@@ -217,7 +276,7 @@ let app = {
     },
     setCookie(cname, cvalue, exdays) {
       const d = new Date();
-      d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+      d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
       let expires = "expires=" + d.toUTCString();
       console.log(cname + "=" + cvalue + "; path=/; " + expires);
       document.cookie = cname + "=" + cvalue + "; path=/; " + expires;
@@ -225,7 +284,7 @@ let app = {
     getCookie(cname, defaultValue) {
       let name = cname + "=";
       let decodedCookie = decodeURIComponent(document.cookie);
-      let ca = decodedCookie.split(';');
+      let ca = decodedCookie.split(";");
       for (let i = 0; i < ca.length; i++) {
         let c = ca[i];
         while (c.charAt(0) == " ") {
@@ -237,17 +296,24 @@ let app = {
       }
       return defaultValue;
     },
+    setTheme(value) {
+      this.currentTheme = value;
+      this.setCookie("theme", this.currentTheme);
+    },
   },
   mounted: function () {
     console.log("app mounted");
     this.sound = new Audio("./sound.wav");
     this.rawData = atob(this.getCookie("rawData", btoa(this.rawData)));
+    this.currentTheme = this.getCookie("theme", "light");
     this.data = this.getData();
     setTimeout(this.showApp);
     setInterval(() => {
       this.rid = Math.random();
       if (this.timerStarted) {
-        document.title = this.timerText();
+        document.title = `${this.timerParts(0)}${this.timerParts(
+          1
+        )}:${this.timerParts(2)}:${this.timerParts(3)}`;
       }
       this.elapsedTime = (new Date() - this.meetingStart) / (1000 * 60);
       this.date = new Date();
