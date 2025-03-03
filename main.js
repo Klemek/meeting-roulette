@@ -1,3 +1,5 @@
+import { createApp } from "vue";
+
 const DAISYUI_THEMES = [
   "light",
   "dark",
@@ -32,7 +34,7 @@ const DAISYUI_THEMES = [
   "abyss",
 ];
 
-let app = {
+const app = createApp({
   data() {
     return {
       rawData:
@@ -51,17 +53,12 @@ let app = {
       initialSpin: true,
       initialColor: Math.floor(Math.random() * 4),
       rid: 0,
-      beepTimer: undefined,
-      sound: undefined,
+      beepTimer: null,
+      sound: null,
       themes: DAISYUI_THEMES,
       currentTheme: "cmyk",
       spinning: false,
     };
-  },
-  watch: {
-    rawData() {
-      this.data = this.getData();
-    },
   },
   computed: {
     selectedData() {
@@ -83,12 +80,10 @@ let app = {
       return this.elapsedTime + this.totalRemainingTime;
     },
     totalExpectedTime() {
-      return this.data.map((item) => item.time).reduce((a, b) => a + b, 0);
+      return this.data.reduce((sum, item) => sum + item.time, 0);
     },
     totalRemainingTime() {
-      return this.filteredData
-        .map((item) => item.time)
-        .reduce((a, b) => a + b, 0);
+      return this.filteredData.reduce((sum, item) => sum + item.time, 0);
     },
     overtimeTime() {
       return this.totalTime - this.totalExpectedTime;
@@ -116,7 +111,7 @@ let app = {
         const textScale = this.textScale(item.text, angleRad);
         totalAngle += angleDeg;
         const colorIndex =
-          ((index == this.filteredData.length - 1 && index % 4 == 0 ? 1 : 0) +
+          ((index === this.filteredData.length - 1 && index % 4 === 0 ? 1 : 0) +
             index +
             this.initialColor) %
           4;
@@ -140,31 +135,56 @@ let app = {
       });
     },
   },
+  watch: {
+    rawData() {
+      this.data = this.getData();
+    },
+  },
+  mounted() {
+    this.sound = new Audio("./sound.wav");
+    this.rawData = atob(this.getCookie("rawData", btoa(this.rawData)));
+    this.currentTheme = this.getCookie("theme", this.currentTheme);
+    this.data = this.getData();
+    setTimeout(this.showApp);
+    setInterval(() => {
+      this.rid = Math.random();
+      if (this.timerStarted) {
+        document.title = `${this.timerParts(0)}${this.timerParts(
+          1
+        )}:${this.timerParts(2)}:${this.timerParts(3)}`;
+      }
+      this.elapsedTime = (new Date() - this.meetingStart) / (1000 * 60);
+      this.date = new Date();
+    }, 200);
+  },
   methods: {
     textScale(text, angleRad) {
-      const r = 1.2;
-      const n = text.length;
-      const k = n + r / (2 * Math.tan(Math.min(Math.PI, angleRad) / 2));
-      return k / r;
+      const ratio = 1.2;
+      return (
+        (text.length +
+          ratio / (2 * Math.tan(Math.min(Math.PI, angleRad) / 2))) /
+        ratio
+      );
     },
     overtime() {
       return this.timerStarted && this.timerEnd - new Date() <= 0;
     },
-    timerParts(i) {
-      const delta = this.timerStarted
-        ? Math.floor((this.timerEnd - new Date()) / 1000)
-        : this.showSelected
-          ? this.selectedData.time * 60
-          : 0;
-      if (i == 0) {
+    timerParts(index) {
+      let delta = 0;
+      if (this.timerStarted) {
+        delta = Math.floor((this.timerEnd - new Date()) / 1000);
+      } else if (this.showSelected) {
+        delta = this.selectedData.time * 60;
+      }
+      if (index === 0) {
         return delta < 0 ? "-" : "";
       }
       const hours = Math.floor(Math.abs(delta) / 3600);
-      if (i == 1) {
+      if (index === 1) {
         return String(hours).padStart(2, "0");
       }
       const minutes = Math.floor(Math.abs(delta) / 60 - hours * 60);
-      if (i == 2) {
+      if (index === 2) {
         return String(minutes).padStart(2, "0");
       }
       const seconds = Math.abs(delta) % 60;
@@ -174,17 +194,16 @@ let app = {
       this.sound.play();
     },
     timeText(minutes, padHours = 0) {
-      const prefix = minutes >= 0 ? '' : '-';
-      minutes = Math.abs(minutes);
-      if (minutes >= 60 || padHours > 0) {
-        return `${prefix}${Math.floor(minutes / 60)
+      const prefix = minutes >= 0 ? "" : "-";
+      const absMinutes = Math.abs(minutes);
+      if (absMinutes >= 60 || padHours > 0) {
+        return `${prefix}${Math.floor(absMinutes / 60)
           .toFixed(0)
-          .padStart(padHours, "0")}h${(minutes % 60)
-            .toFixed(0)
-            .padStart(2, "0")}`;
-      } else {
-        return `${prefix}${(minutes % 60).toFixed(0).padStart(2, "0")}min`;
+          .padStart(padHours, "0")}h${(absMinutes % 60)
+          .toFixed(0)
+          .padStart(2, "0")}`;
       }
+      return `${prefix}${(absMinutes % 60).toFixed(0).padStart(2, "0")}min`;
     },
     spin() {
       if (this.timerStarted || this.noData) return;
@@ -204,7 +223,7 @@ let app = {
           particleCount: 400,
           startVelocity: 100,
           spread: 100,
-          origin: { y: 0.9 },
+          origin: { y: 0.9 }, // eslint-disable-line id-length
         });
       }, 5000);
     },
@@ -213,7 +232,7 @@ let app = {
         return this.svgData[0].id;
       }
       const angle = 360 - (this.wheelPosition % 360);
-      for (let index = 0; index < this.svgData.length; index++) {
+      for (let index = 0; index < this.svgData.length; index += 1) {
         const element = this.svgData[index];
         if (angle >= element.from && angle < element.to) {
           return element.id;
@@ -222,7 +241,8 @@ let app = {
       return 0;
     },
     getData() {
-      const re = /:\s?(?:(?:(\d+)\s?h)?(\d+)?(?:\s?m(?:in)?)?)\s?$/i;
+      const re =
+        /:\s?(?:(?:(?<hours>\d+)\s?h)?(?<minutes>\d+)?(?:\s?m(?:in)?)?)\s?$/iu;
       this.setCookie("rawData", btoa(this.rawData));
       const data = this.rawData
         .split("\n")
@@ -237,14 +257,15 @@ let app = {
               time: 1,
               disabled: line.substring(0, 1) === "-",
             };
-          } else {
-            return {
-              id: index,
-              text: line.substring(0, line.indexOf(result[0])),
-              time: parseInt(result[1] ?? 0) * 60 + parseInt(result[2] ?? 0),
-              disabled: line.substring(0, 1) === "-",
-            };
           }
+          return {
+            id: index,
+            text: line.substring(0, result.index),
+            time:
+              parseInt(result.groups.hours ?? 0, 10) * 60 +
+              parseInt(result.groups.minutes ?? 0, 10),
+            disabled: line.substring(0, 1) === "-",
+          };
         });
       if (data.length === 0) {
         return [
@@ -262,17 +283,18 @@ let app = {
       document.getElementById("app").setAttribute("style", "");
     },
     removeTopic() {
-      let i = 0;
+      let index = 0;
       this.rawData = this.rawData
         .split("\n")
         .map((line) => {
+          let newLine = line;
           if (line.trim().length) {
-            if (i === this.selected) {
-              line = "-" + line;
+            if (index === this.selected) {
+              newLine = `-${line}`;
             }
-            i += 1;
+            index += 1;
           }
-          return line;
+          return newLine;
         })
         .join("\n");
       this.showSelected = false;
@@ -292,23 +314,22 @@ let app = {
       }
     },
     setCookie(cname, cvalue, exdays) {
-      const d = new Date();
-      d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
-      let expires = "expires=" + d.toUTCString();
-      console.log(cname + "=" + cvalue + "; path=/; " + expires);
-      document.cookie = cname + "=" + cvalue + "; path=/; " + expires;
+      const date = new Date();
+      date.setTime(date.getTime() + exdays * 24 * 60 * 60 * 1000);
+      const expires = `expires=${date.toUTCString()}`;
+      document.cookie = `${cname}=${cvalue}; path=/; ${expires}`;
     },
     getCookie(cname, defaultValue) {
-      let name = cname + "=";
-      let decodedCookie = decodeURIComponent(document.cookie);
-      let ca = decodedCookie.split(";");
-      for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) == " ") {
-          c = c.substring(1);
+      const name = `${cname}=`;
+      const decodedCookie = decodeURIComponent(document.cookie);
+      const ca = decodedCookie.split(";");
+      for (let index = 0; index < ca.length; index += 1) {
+        let cookie = ca[index];
+        while (cookie.charAt(0) === " ") {
+          cookie = cookie.substring(1);
         }
-        if (c.indexOf(name) == 0) {
-          return c.substring(name.length, c.length);
+        if (cookie.indexOf(name) === 0) {
+          return cookie.substring(name.length, cookie.length);
         }
       }
       return defaultValue;
@@ -318,27 +339,8 @@ let app = {
       this.setCookie("theme", this.currentTheme);
     },
   },
-  mounted: function () {
-    console.log("app mounted");
-    this.sound = new Audio("./sound.wav");
-    this.rawData = atob(this.getCookie("rawData", btoa(this.rawData)));
-    this.currentTheme = this.getCookie("theme", this.currentTheme);
-    this.data = this.getData();
-    setTimeout(this.showApp);
-    setInterval(() => {
-      this.rid = Math.random();
-      if (this.timerStarted) {
-        document.title = `${this.timerParts(0)}${this.timerParts(
-          1
-        )}:${this.timerParts(2)}:${this.timerParts(3)}`;
-      }
-      this.elapsedTime = (new Date() - this.meetingStart) / (1000 * 60);
-      this.date = new Date();
-    }, 200);
-  },
-};
+});
 
 window.onload = () => {
-  app = Vue.createApp(app);
   app.mount("#app");
 };

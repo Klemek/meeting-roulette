@@ -3,8 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <title>Meeting Roulette</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script type="text/javascript" src="main.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+        }
+      }
+    </script>
+    <script type="module" src="main.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link
       href="https://cdn.jsdelivr.net/npm/daisyui@5.0.0-beta.6/daisyui.css"
@@ -123,40 +129,36 @@
             </svg>
           </button>
         </div>
-        <div
-          class="hidden lg:block p-3 bg-base-200 rounded-box"
-        >
-        <div
-          class="stats stats-vertical w-full"
-        >
-          <div class="stat">
-            <div class="stat-title">Meeting duration so far</div>
-            <div class="stat-value" :id="rid + 1">
-              {{ timeText(elapsedTime) }}
+        <div class="hidden lg:block p-3 bg-base-200 rounded-box">
+          <div class="stats stats-vertical w-full">
+            <div class="stat">
+              <div class="stat-title">Meeting duration so far</div>
+              <div class="stat-value" :id="rid + 1">
+                {{ timeText(elapsedTime) }}
+              </div>
+              <div class="stat-desc" :id="rid + 2">
+                Started at: <b>{{ timeText(startedAt, 2) }}</b>
+              </div>
             </div>
-            <div class="stat-desc" :id="rid + 2">
-              Started at: <b>{{ timeText(startedAt, 2) }}</b>
+            <div class="stat">
+              <div class="stat-title">Remaining meeting time</div>
+              <div class="stat-value" :id="rid + 3">
+                {{ timeText(totalRemainingTime) }}
+              </div>
+              <div class="stat-desc" :id="rid + 4">
+                End estimated at: <b>{{ timeText(estimatedEnd, 2) }}</b>
+              </div>
             </div>
-          </div>
-          <div class="stat">
-            <div class="stat-title">Remaining meeting time</div>
-            <div class="stat-value" :id="rid + 3">
-              {{ timeText(totalRemainingTime) }}
-            </div>
-            <div class="stat-desc" :id="rid + 4">
-              End estimated at: <b>{{ timeText(estimatedEnd, 2) }}</b>
-            </div>
-          </div>
-          <div class="stat">
-            <div class="stat-title">Total meeting time</div>
-            <div class="stat-value" :id="rid + 4">
-              {{ timeText(totalTime) }}
-            </div>
-            <div class="stat-desc">
-              Overtime: <b>{{ timeText(overtimeTime) }}</b>
+            <div class="stat">
+              <div class="stat-title">Total meeting time</div>
+              <div class="stat-value" :id="rid + 4">
+                {{ timeText(totalTime) }}
+              </div>
+              <div class="stat-desc">
+                Overtime: <b>{{ timeText(overtimeTime) }}</b>
+              </div>
             </div>
           </div>
-        </div>
         </div>
         <div class="hidden lg:block grow"></div>
         <div class="hidden lg:block p-3 bg-base-200 rounded-box">

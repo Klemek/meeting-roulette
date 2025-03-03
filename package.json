@@ -1,0 +1,26 @@
+{
+  "name": "meeting-roulette",
+  "version": "1.0.0",
+  "description": "🎡 Spin your meetings",
+  "scripts": {
+    "lint": "eslint",
+    "fix": "eslint --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Klemek/meeting-roulette.git"
+  },
+  "author": "klemek",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Klemek/meeting-roulette/issues"
+  },
+  "homepage": "https://github.com/Klemek/meeting-roulette#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "eslint": "^9.21.0",
+    "eslint-config-prettier": "^10.0.2",
+    "eslint-plugin-vue": "^9.32.0",
+    "globals": "^16.0.0"
+  }
+}
